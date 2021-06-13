@@ -1,36 +1,55 @@
 import os
 import discord
+from discord.ext.commands.converter import _get_from_guilds
 import requests
 import random
 import discord.ext
 from discord.ext import commands
 from discord import Spotify
+import os
+import pymongo
+from pymongo import MongoClient
 
-from dotenv import load_dotenv, find_dotenv
+# from dotenv import load_dotenv, find_dotenv
 
-load_dotenv(find_dotenv())
+# load_dotenv(find_dotenv())
+
+#in cluster variable instead of username,password and Database_name keep your database-username and password and database name
+
+cluster = MongoClient("mongodb+srv://username:password@cluster0.fjemn.mongodb.net/Database_name?retryWrites=true&w=majority")
+db = cluster['discord']
+collection = db['prefixes']
+
+def get_prefix(client, message):
+    guild = collection.find({"_id" : f"{message.guild.id}"})
+    for i in guild:
+        return i["prefix"]
+
+client = commands.Bot(command_prefix=get_prefix, intents=discord.Intents.all())
 
 
-client = commands.Bot(command_prefix="bb", intents=discord.Intents.all())
-
+for filename in os.listdir("./cogs"):
+    if filename.endswith(".py"):
+        client.load_extension(f"cogs.{filename[:-3]}")
 
 @client.event
 async def on_ready():
     print(f"we have logged in as {client.user}")
+    for guild in client.guilds:
+        print(guild.name)
 
 
-@client.event
-async def on_message(msg):
+# @client.event
+# async def on_message(msg):
+#     if client.user.mentioned_in(msg):
 
-    if client.user.mentioned_in(msg):
+#         # Bot responds with the current prefix when mentioned in the message
+#         # "#009aff" or 0x009aff if the color used for Beel
+#         emb = discord.Embed(
+#             description=f"Hi, I currently respond to\n```Prefix: bb```", color=0x009aff)
+#         await msg.channel.send(embed=emb)
 
-        # Bot responds with the current prefix when mentioned in the message
-        # "#009aff" or 0x009aff if the color used for Beel
-        emb = discord.Embed(
-            description=f"Hi, I currently respond to\n```Prefix: bb```", color=0x009aff)
-        await msg.channel.send(embed=emb)
-
-    await client.process_commands(msg)
+#     await client.process_commands(msg)
 
 
 @client.command()
@@ -132,6 +151,5 @@ async def av_error(ctx, error):
         await ctx.send("Hmm somethings wrong, plz inform the developers")
 
 
-
-
-client.run(os.getenv('TOKEN'))
+client.run("TOKEN")
+# client.run(os.getenv('TOKEN'))
