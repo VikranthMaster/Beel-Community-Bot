@@ -5,7 +5,7 @@ from discord.ext import commands
 import pymongo
 from pymongo import MongoClient
 
-cluster = MongoClient("mongodb+srv://vikranth:test123@cluster0.fjemn.mongodb.net/discord?retryWrites=true&w=majority")
+cluster = MongoClient("mongodb+srv://username:password@cluster0.fjemn.mongodb.net/discord?retryWrites=true&w=majority")
 db = cluster['discord']
 collection = db['prefixes']
 
